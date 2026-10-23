@@ -4,13 +4,15 @@ import com.scaler.splitwiseeveningsept2026.Commands.Command;
 import com.scaler.splitwiseeveningsept2026.Commands.CommandRegistry;
 import com.scaler.splitwiseeveningsept2026.Commands.Login;
 import com.scaler.splitwiseeveningsept2026.Commands.RegisterCommand;
+import com.scaler.splitwiseeveningsept2026.Controllers.GroupController;
 import com.scaler.splitwiseeveningsept2026.Controllers.UserController;
-import com.scaler.splitwiseeveningsept2026.DTO.UserRegistrationRequestDTO;
+import com.scaler.splitwiseeveningsept2026.DTO.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import javax.xml.crypto.Data;
 import java.sql.SQLOutput;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +27,10 @@ public class SplitwiseEveningSept2026Application implements CommandLineRunner {
 
     CommandRegistry commandRegistry;
     // multiple controller
+    @Autowired
+    DataGenerator dataGenerator;
+    @Autowired
+    GroupController groupController;
 
     public static void main(String[] args) {
         SpringApplication.run(SplitwiseEveningSept2026Application.class, args);
@@ -44,17 +50,30 @@ public class SplitwiseEveningSept2026Application implements CommandLineRunner {
     }
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("Please enter your commands");
-        String input = scanner.nextLine();
-        initialiseRegistry();
-        commandRegistry.matchAndExecute(input);
+//        System.out.println("Please enter your commands");
+//        String input = scanner.nextLine();
+//        initialiseRegistry();
+//        commandRegistry.matchAndExecute(input);
+//
+//
+//        //Direct Factory use (Cons - maintain singletons for each command or else every request will create a new object of the command)
+//        String input1 = scanner.nextLine();
+//        String command1 = Arrays.asList(input.split(" ")).get(0);
+//        Command command = CommandFactory.getCommand(command1);
+//        command.execute(input1);
+//        dataGenerator.generateData();
 
-
-        //Direct Factory use (Cons - maintain singletons for each command or else every request will create a new object of the command)
-        String input1 = scanner.nextLine();
-        String command1 = Arrays.asList(input.split(" ")).get(0);
-        Command command = CommandFactory.getCommand(command1);
-        command.execute(input1);
+        SettleUpGroupRequestDTO settleUpGroupRequestDTO = new SettleUpGroupRequestDTO();
+        settleUpGroupRequestDTO.setGroupId(1l);
+        SettleUpGroupResponseDTO responseDTO = groupController.settleUp(settleUpGroupRequestDTO);
+        if(responseDTO.getStatus().equals(ResponseStatus.SUCCESS)){
+            System.out.println("Successfully calculated the txns");
+            for(Transaction transaction : responseDTO.getTransactions()){
+                System.out.println(transaction.getFromUserId() + " needs to pay " + transaction.getAmount() + " to " + transaction.getToUserId());
+            }
+        }else{
+            System.out.println(responseDTO.getMessage());
+        }
     }
 }
 
